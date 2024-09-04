@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.34.0
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    depends_on:
+      - go-wm
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=j1mb0b
+    volumes:
+      - grafana_data:/var/lib/grafana  
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  cassandra:
+    image: cassandra:4.0
+    container_name: cassandra
+    environment:
+      - CASSANDRA_CLUSTER_NAME=WeightManager
+      - CASSANDRA_NUM_TOKENS=256
+      - CASSANDRA_RPC_ADDRESS=0.0.0.0
+    ports:
+      - "9042:9042"   # Port for CQL (Cassandra Query Language) clients
+      - "7000:7000"   # Intra-node communication (not encrypted)
+      - "7001:7001"   # Intra-node communication (encrypted)
+      - "7199:7199"   # JMX monitoring port
+    volumes:
+      - cassandra_data:/var/lib/cassandra  
+
+  go-wm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-wm  
+    ports:
+      - "50051:50051"   # gRPC server port
+      - "2112:2112"     # Prometheus metrics endpoint port
+    restart: unless-stopped
+    depends_on:
+      - cassandra
+
+volumes:
+  cassandra_data:
+  prometheus_data:
+  grafana_data:  

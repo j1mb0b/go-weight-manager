@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package wm_grpc;
+
+option go_package = "./proto";
+
+service WMService {
+  rpc AnalyzeWeight (Empty) returns (EntryResponse);
+  rpc AddEntry (WeightEntry) returns (EntryResponse);
+  rpc GetEntries (UserID) returns (WeightEntries);
+  rpc UpdateEntry (WeightEntry) returns (EntryResponse);
+  rpc DeleteEntry (EntryID) returns (EntryResponse);
+}
+
+message WeightEntry {
+  string id = 1;
+  uint32 uid = 2;
+  string date = 3; // format: YYYY-MM-DD
+  float weight = 4; // weight in kilograms
+}
+
+message EntryID {
+  string id = 1;
+}
+
+message UserID {
+  uint32 uid = 1;
+}
+
+message EntryResponse {
+  string message = 1;
+}
+
+message WeightEntries {
+  repeated WeightEntry entries = 1;
+}
+
+message Empty {}
