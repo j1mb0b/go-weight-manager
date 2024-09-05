@@ -71,7 +71,7 @@ func startGRPCServer(ctx context.Context) (*grpc.Server, net.Listener) {
 }
 
 func setupCluster() *gocql.Session {
-	cluster := gocql.NewCluster("127.0.0.1") // replace with your Cassandra IP address
+	cluster := gocql.NewCluster("cassandra") // replace with your Cassandra IP address
 	cluster.Keyspace = "weight_manager"      // replace with your keyspace
 	cluster.Consistency = gocql.Quorum
 
