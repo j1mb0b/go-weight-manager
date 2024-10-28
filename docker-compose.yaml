@@ -43,6 +43,12 @@ services:
       - ./init-scripts/cassandra:/docker-entrypoint-initdb.d
       - cassandra_data:/var/lib/cassandra
     entrypoint: ["/docker-entrypoint-initdb.d/init.sh"]
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
 
   go-wm:
     build:
